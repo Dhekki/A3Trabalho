@@ -4,10 +4,7 @@ import entities.Person;
 import entities.Student;
 import entities.Teacher;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 public class PersonUtil {
     //Função cadastro
@@ -20,6 +17,7 @@ public class PersonUtil {
         //Inserção de dados
         System.out.print("Digite o nome completo: ");
         name = sc.nextLine();
+        name = firstUpCase(name);
 
         System.out.print("Digite a idade: ");
         age = sc.nextInt();
@@ -57,7 +55,9 @@ public class PersonUtil {
         clearBuffer(sc);
         System.out.print("Digite a disciplina: ");
         String course = sc.nextLine();
+        course = firstUpCase(course);
         teacher.setCourse(course);
+        //teacher.setCourse(firstUpCase(course)); Outra maneira de setar com método
         System.out.print("Digite o salário: ");
         double salary = sc.nextDouble();
         teacher.setSalary(salary);
@@ -99,4 +99,20 @@ public class PersonUtil {
     public static String registerNotFound () {
         return ("\nRegistro não encontrado!");
     }
+
+    public static String firstUpCase(String word) { //Primeira letra maiúscula
+        return word.substring(0, 1).toUpperCase() + word.substring(1);
+    }
+
+    /* Outra maneira de fazer ordenação de lista com Comparator, fiz assim inicialmente mas escreve muito e deu preguiça,
+       então tá só um exemplo porque dessa maneira é mais específica
+       e na classe de menus se coloca isso personList.sort(new PersonUtil.tsComparator()); pra usar o comparador
+    public static class tsComparator implements Comparator<Person> { //1°Teacher 2°Student
+        public int compare(Person p1, Person p2) {
+            if (p1 instanceof Teacher && p2 instanceof Student) return -1; //p1 Professor vem antes "-1"
+            else if (p1 instanceof Student && p2 instanceof Teacher) return +1; //p1 Aluno vem depois "1"
+            else return 0; //Igual, só segue
+        }
+    }
+     */
 }

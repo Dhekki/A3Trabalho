@@ -1,6 +1,6 @@
 package entities;
 
-public class Person implements Comparable<Person> {
+public class Person {
         protected String name;
         protected Integer age;
         protected final String id;
@@ -51,7 +51,4 @@ public class Person implements Comparable<Person> {
             return String.format("%-" + nameLength + "s \b\b| %s \t| %d", truncatedName, id, age);
         }
 
-    public int compareTo(Person other) {
-        return this.name.compareToIgnoreCase(other.name);
-    }
 }

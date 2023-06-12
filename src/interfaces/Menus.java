@@ -22,6 +22,8 @@ public class Menus {
                 "\n(1) Listar" +
                 "\n(2) Cadastrar" +
                 "\n(3) Buscar" +
+                "\n(4) Modificar" +
+                "\n(5) Deletar" +
                 "\n(0) Encerrar" +
                 "\n\nOpção: ");
         choice = sc.nextInt();
@@ -54,6 +56,14 @@ public class Menus {
 
     //Ação derivada da escolha do usuário no menu principal
     public void choiceMenu(int choice, ArrayList<Person> personList, Scanner sc) {
+        //Comparadores pra ordenação
+        //Ordenar como 1°Professor e 2°Aluno
+        Comparator<Person> typeComparator = Comparator.comparing(person -> person instanceof Student);
+        //Ordenar alfabeticamente
+        Comparator<Person> nameComparator = Comparator.comparing(Person::getName);
+        // Ordenar a lista inicial em Professor e Alunos e em ordem alfabética em cada loop
+        personList.sort(nameComparator);
+
         switch (choice) {
             case 1: //Listar
                 int listChoice;
@@ -67,7 +77,9 @@ public class Menus {
                     listChoice = sc.nextInt();
                     switch (listChoice) {
                         case 1:
-                            System.out.println("S/P  | Name\t\t\t  | Id\t\t\t| Age" +
+                            //Ordena a lista geral em Professor e alunos e depois em ordem alfabética
+                            personList.sort(typeComparator.thenComparing(nameComparator));
+                            System.out.println("S/P  | Name\t\t\t\t | Id\t\t\t| Age" +
                                     "\n-------------------------------------");
                             for (Person person : personList) {
                                 if (person instanceof Teacher) {
@@ -145,6 +157,42 @@ public class Menus {
                     atributteChoice(atributteTeacherMenu(sc, role), personList, sc, role);
                 } else atributteChoice(atributteStudentMenu(sc, role), personList, sc, role);
 
+                break;
+            case 4:
+                System.out.println("Função indisponível no momento");
+                break;
+            case 5:
+                PersonUtil.clearBuffer(sc);
+                System.out.println("\nRemover usuário");
+                System.out.print("Digite o id do usuário que deseja remover: ");
+                String userRemove = sc.nextLine();
+                boolean registerFound = false;
+
+                Iterator<Person> itr = personList.iterator();
+                while (itr.hasNext()) {
+                    Person person = itr.next();
+                        if (person instanceof Teacher teacher && Objects.equals(teacher.getId(), userRemove)) { //Verifica se existe e é professor
+                            System.out.println("\n" + teacherHeader);
+                            System.out.println(teacher.completeTeacherString(19, 12) + "\n");
+                            System.out.print("Deseja realmente remover esse registro de professor? ");
+                        } else if (person instanceof Student student && Objects.equals(student.getId(), userRemove)) { //Verifica se existe e é estudante
+                            System.out.println("\n" + studentHeader);
+                            System.out.println(student.completeStudentString(19) + "\n");
+                            System.out.print("Deseja realmente remover esse registro de aluno? ");
+                        }
+                        if (Objects.equals(person.getId(), userRemove)) {
+                            role = sc.nextLine().toUpperCase().charAt(0); //Confirmação de remoção
+
+                            if (role == 'S') {
+                                itr.remove();
+                                System.out.println("Registro removido com sucesso!");
+                            } else if (role == 'N') {
+                                System.out.println("Registro não removido!");
+                            } else System.out.println("Opção inválida");
+                            registerFound = true;
+                        }
+                }
+                if (!registerFound) System.out.println(error404);
                 break;
             case 0: //Encerrar
                 System.out.println("\nPrograma encerrado!");
