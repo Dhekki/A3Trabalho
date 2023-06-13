@@ -16,6 +16,7 @@ public class Menus {
     String studentHeader = PersonUtil.studentColumnHeader()
             ,teacherHeader = PersonUtil.teacherColumnHeader()
             ,error404 = PersonUtil.registerNotFound();
+    String[] names; //Utilizável no método de separar nomes/sobrenomes
 
     //Menu pra escolha de opção
     public int mainMenu(Scanner sc) {
@@ -115,16 +116,16 @@ public class Menus {
                         case 2: //Listar alunos
                             System.out.println(studentHeader);
                             for (Person person: personList) {
-                                if (person instanceof Student) {
-                                    System.out.println(((Student) person).completeStudentString(19)); //Cast de Person pra Student
+                                if (person instanceof Student student) {
+                                    System.out.println(student.completeStudentString(19)); //Cast de Person pra Student
                                 }
                             }
                             break;
                         case 3: //Listar professores
                             System.out.println(teacherHeader);
                             for (Person person: personList) {
-                                if (person instanceof Teacher) {
-                                    System.out.println(((Teacher) person).completeTeacherString(19, 12)); //Cast de Person pra Student
+                                if (person instanceof Teacher teacher) {
+                                    System.out.println(teacher.completeTeacherString(19, 12)); //Cast de Person pra Student
                                 }
                             }
                             break;
@@ -158,9 +159,18 @@ public class Menus {
                         System.out.print("\nDeseja cadastrar outro aluno? ");
                     }
 
-                    char verify = sc.next().toLowerCase().charAt(0);
-                    PersonUtil.clearBuffer(sc);
-                    if (verify == 'n') repeat = false;
+                    char verify;
+                    do {
+                        verify = sc.next().toUpperCase().charAt(0);
+                        PersonUtil.clearBuffer(sc);
+                        if (verify == 'N') {
+                            repeat = false;
+                        } else if (verify != 'S') {
+                            repeat = false;
+                            System.out.println("Opção inválida!");
+                            System.out.print("Deseja fazer mais algum cadastro? ");
+                        }
+                    } while (verify != 'N' && verify != 'S');
                 } while (repeat);
                 break;
             case 3: //Buscar
@@ -179,8 +189,7 @@ public class Menus {
 
                 if (role == 'P') {
                     atributteChoice(atributteTeacherMenu(sc, modify), personList, sc, role);
-                } else atributteChoice(atributteStudentMenu(sc, modify), personList, sc, role);
-
+                } else if (role == 'A') atributteChoice(atributteStudentMenu(sc, modify), personList, sc, role);
                 break;
             case 4: //Modificar
                 modify = true;
@@ -211,10 +220,7 @@ public class Menus {
                         }
                     }
                 }
-                if (!registerFound) {
-                    System.out.println(error404);
-                    break;
-                }
+                if (!registerFound) System.out.println(error404);
 
                 if (role == 'P') {
                     choice = atributteTeacherMenu(sc, modify);
@@ -228,21 +234,15 @@ public class Menus {
                                 .filter(person -> Objects.equals(person.getId(), userModify))
                                 .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
                                     // única diferença visível é que não precisei retornar
+                                    System.out.print("\nDigite o novo nome: ");
+                                    PersonUtil.clearBuffer(sc);
+                                    String newName = sc.nextLine();
                                     if (person instanceof Teacher teacher) {
-                                        System.out.print("\nDigite o novo nome: ");
-                                        PersonUtil.clearBuffer(sc);
-                                        String newName = sc.nextLine();
-
                                         teacher.setName(newName);
-                                        System.out.println("Nome modificado com sucesso!");
                                     } else if (person instanceof Student student) {
-                                        System.out.print("\nDigite o novo nome: ");
-                                        PersonUtil.clearBuffer(sc);
-                                        String newName = sc.nextLine();
-
                                         student.setName(newName);
-                                        System.out.println("Nome modificado com sucesso!");
                                     }
+                                    System.out.println("Nome modificado com sucesso!");
                                 })
                                 .toList();
                         break;
@@ -251,21 +251,15 @@ public class Menus {
                                 .filter(person -> Objects.equals(person.getId(), userModify))
                                 .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
                                     // única diferença visível é que não precisei retornar
+                                    System.out.print("\nDigite a nova idade: ");
+                                    PersonUtil.clearBuffer(sc);
+                                    int newAge = sc.nextInt();
                                     if (person instanceof Teacher teacher) {
-                                        System.out.print("\nDigite a nova idade: ");
-                                        PersonUtil.clearBuffer(sc);
-                                        int newAge = sc.nextInt();
-
                                         teacher.setAge(newAge);
-                                        System.out.println("Idade modificada com sucesso!");
                                     } else if (person instanceof Student student) {
-                                        System.out.print("\nDigite a nova idade: ");
-                                        PersonUtil.clearBuffer(sc);
-                                        int newAge = sc.nextInt();
-
                                         student.setAge(newAge);
-                                        System.out.println("Idade modificada com sucesso!");
                                     }
+                                    System.out.println("Idade modificada com sucesso!");
                                 })
                                 .toList();
                         break;
@@ -277,12 +271,11 @@ public class Menus {
                                     if (person instanceof Teacher teacher) {
                                         if (teacher.getGender() == 'F') teacher.setGender('M');
                                         else if (teacher.getGender() == 'M') teacher.setGender('F');
-                                        System.out.println("Gênero alterado com sucesso!");
                                     } else if (person instanceof Student student) {
                                         if (student.getGender() == 'F') student.setGender('M');
                                         else if (student.getGender() == 'M') student.setGender('F');
-                                        System.out.println("Gênero alterado com sucesso!");
                                     }
+                                    System.out.println("Gênero alterado com sucesso!");
                                 })
                                 .toList();
                         break;
@@ -312,14 +305,13 @@ public class Menus {
                                             .filter(person -> Objects.equals(person.getId(), userModify))
                                             .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
                                                 // única diferença visível é que não precisei retornar
+                                                System.out.print("\nDigite o novo salário: ");
+                                                PersonUtil.clearBuffer(sc);
+                                                double newSalary = sc.nextDouble();
                                                 if (person instanceof Teacher teacher) {
-                                                    System.out.print("\nDigite o novo salário: ");
-                                                    PersonUtil.clearBuffer(sc);
-                                                    double newSalary = sc.nextDouble();
-
                                                     teacher.setSalary(newSalary);
-                                                    System.out.println("Salário modificado com sucesso!");
                                                 }
+                                                System.out.println("Salário modificado com sucesso!");
                                             })
                                             .toList();
                                     break;
@@ -329,19 +321,18 @@ public class Menus {
 
                         } else if (role == 'A') {
                             switch (choice) {
-                                case 4:
+                                case 4: //Semestre
                                     personModify = personList.stream()
                                             .filter(person -> Objects.equals(person.getId(), userModify))
                                             .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
                                                 // única diferença visível é que não precisei retornar
+                                                System.out.print("\nDigite o novo : ");
+                                                PersonUtil.clearBuffer(sc);
+                                                int newSemester = sc.nextInt();
                                                 if (person instanceof Student student) {
-                                                    System.out.print("\nDigite o novo : ");
-                                                    PersonUtil.clearBuffer(sc);
-                                                    int newSemester = sc.nextInt();
-
                                                     student.setSemester(newSemester);
-                                                    System.out.println("Semestre alterado com sucesso!");
                                                 }
+                                                System.out.println("Semestre alterado com sucesso!");
                                             })
                                             .toList();
                                     break;
@@ -360,7 +351,7 @@ public class Menus {
 
                 Iterator<Person> itr = personList.iterator(); //Precisa disso pra remover, é o mais recomendado, pq? Nem ideia
                 while (itr.hasNext()) {
-                    Person person = itr.next();
+                    Person person = itr.next(); //Tbm n sei pra que serve
                     if (person instanceof Teacher teacher && Objects.equals(teacher.getId(), userRemove)) { //Verifica se existe e é professor
                         System.out.println("\n" + teacherHeader);
                         System.out.println(teacher.completeTeacherString(19, 12) + "\n");
@@ -371,12 +362,12 @@ public class Menus {
                         System.out.print("Deseja realmente remover esse registro de aluno? ");
                     }
                     if (Objects.equals(person.getId(), userRemove)) {
-                        role = sc.nextLine().toUpperCase().charAt(0); //Confirmação de remoção
+                        char confirm = sc.nextLine().toUpperCase().charAt(0); //Confirmação de remoção
 
-                        if (role == 'S') {
+                        if (confirm == 'S') {
                             itr.remove();
                             System.out.println("Registro removido com sucesso!");
-                        } else if (role == 'N') {
+                        } else if (confirm == 'N') {
                             System.out.println("Registro não removido!");
                         } else System.out.println("Opção inválida");
                         registerFound = true;
@@ -399,164 +390,127 @@ public class Menus {
             case 1: //Nome
                 System.out.print("Digite o nome que deseja procurar: ");
                 String nameSearch = sc.nextLine();
-                //Lista para busca de nomes
-                List<Person> orderName = personList.stream() //Transformando em stream pra usar função lambda
-                        .filter(person -> {
+
+                for (Person person: personList) { //Cabeçalho
+                    String firstName = PersonUtil.firstName(names, person);
+                    if (role == 'P' && firstName.equalsIgnoreCase(nameSearch)) {
+                        System.out.println("\n" + teacherHeader);
+                        break;
+                    } else if (role == 'A' && firstName.equalsIgnoreCase(nameSearch)) {
+                        System.out.println("\n" + studentHeader);
+                        break;
+                    }
+                }
+                //List -> Stream -> Filter -> List
+                List<Person> orderPerson = personList.stream() //Transformando em stream pra usar função lambda
+                        .filter(person -> { //Registros encontrados
                             if (person instanceof Teacher teacher) { //Filtra Professores
-                                String[] names = teacher.getName().split(" "); //Separando os nomes e sobrenomes com arrays
-                                String firstName = names[0]; // Obtém o primeiro nome
-                                return firstName.equalsIgnoreCase(nameSearch); //comparação dos nomes desconsiderando letras maiúsculas e minúsculas
+                                String firstName = PersonUtil.firstName(names, person);
+                                if (firstName.equalsIgnoreCase(nameSearch)) { //comparação dos nomes desconsiderando letras maiúsculas e minúsculas
+                                    System.out.println(teacher.completeTeacherString(19, 12));
+                                    return true;
+                                }
                             } else if (person instanceof Student student) { //Filtra alunos
-                                String[] names = student.getName().split(" "); //Separando os nomes e sobrenomes com arrays
-                                String firstName = names[0]; // Obtém o primeiro nome
-                                return firstName.equalsIgnoreCase(nameSearch); //comparação dos nomes desconsiderando letras maiúsculas e minúsculas
+                                String firstName = PersonUtil.firstName(names, person);
+                                if (firstName.equalsIgnoreCase(nameSearch)) {
+                                    System.out.println(student.completeStudentString(19));//comparação dos nomes desconsiderando letras maiúsculas e minúsculas
+                                return true;
+                                }
                             }
-                            return false; // Caso a pessoa não seja nem professor nem aluno
+                                return false; // Caso não seja nem professor nem aluno
                         })
                         .toList();
 
-                if (role == 'P') {
-                    if (orderName.stream().noneMatch(person -> person instanceof Teacher)) { //Verificação de existência de registro
-                        System.out.println(error404);
-                    } else {
-                        System.out.println(teacherHeader);
-                        for (Person name : orderName) {
-                            if (name instanceof Teacher teacher) { // Verifica se é instância de Teacher e converte para o mesmo pra usar método
-                                System.out.println(teacher.completeTeacherString(19, 12));
-                            }
-                        }
-                    }
-                } else if (role == 'A'){
-                    if (orderName.stream().noneMatch(person -> person instanceof Student)) { //Verificação de existência de registro
-                        System.out.println(error404);
-                    } else {
-                        System.out.println(studentHeader);
-                        for (Person name : orderName) {
-                            if (name instanceof Student student) { // Verifica se é instância de Student e converte para o mesmo pra usar método
-                                System.out.println(student.completeStudentString(19));
-                            }
-                        }
-
-                    }
-                }
+                if (orderPerson.isEmpty()) System.out.println(error404);
                 break;
             case 2: //Idade
                 System.out.print("Digite a idade que deseja procurar: ");
                 int numberSearch = sc.nextInt();
 
+                for (Person person: personList) { //Cabeçalho
+                    if (role == 'P' && person.getAge() == numberSearch) {
+                        System.out.println(teacherHeader);
+                        break;
+                    } else if (role == 'A' && person.getAge() == numberSearch) {
+                        System.out.println(studentHeader);
+                        break;
+                    }
+                }
                 //List -> Stream -> filter -> List
-                List<Person> orderNumber = personList.stream()
-                        .filter(person -> {
-                            if (person instanceof Teacher teacher) { //Filtra professores
-                                return teacher.getAge() == numberSearch;
-                            } else if (person instanceof Student student) { //Filtra alunos
-                                return student.getAge() == numberSearch;
+                orderPerson = personList.stream()
+                        .filter(person -> { //Registros encontrados
+                            if (person instanceof Teacher teacher && person.getAge() == numberSearch) { //Filtra professores
+                                System.out.println(teacher.completeTeacherString(19, 12));
+                                return true;
+                            } else if (person instanceof Student student && person.getAge() == numberSearch) { //Filtra alunos
+                                System.out.println(student.completeStudentString(19));
+                                return true;
                             }
-                            return false; // Caso a pessoa não seja nem professor nem aluno
+                            return false; //Caso não seja nem professor nem aluno
                         })
                         .toList();
 
-                if (role == 'P') {
-                    if (orderNumber.stream().noneMatch(person -> person instanceof Teacher)) { //Verificação de existência de registro
-                        System.out.println(error404);
-                    } else {
-                        System.out.println(teacherHeader);
-                        for (Person age : orderNumber) {
-                            if (age instanceof Teacher teacher) // Verifica se é instância de Teacher e converte para o mesmo pra usar método
-                                System.out.println(teacher.completeTeacherString(19, 12));
-                        }
-                    }
-                } else if (role == 'A'){
-                    if (orderNumber.stream().noneMatch(person -> person instanceof Student)) { //Verificação de existência de registro
-                        System.out.println(error404);
-                    } else {
-                        System.out.println(studentHeader);
-                        for (Person age : orderNumber) {
-                            if (age instanceof Student student) // Verifica se é instância de Student e converte para o mesmo pra usar método
-                                System.out.println(student.completeStudentString(19));
-                        }
-                    }
-                }
+                if (orderPerson.isEmpty()) System.out.println(error404);
                 break;
             case 3: //Id
                 System.out.print("Digite o id que deseja procurar: ");
                 String idSearch = sc.next();
 
+                for (Person person: personList) { //Cabeçalho
+                    if (role == 'P' && Objects.equals(person.getId(), idSearch)) {
+                        System.out.println(teacherHeader);
+                        break;
+                    } else if (role == 'A' && Objects.equals(person.getId(), idSearch)) {
+                        System.out.println(studentHeader);
+                        break;
+                    }
+                }
+
                 //List -> Stream -> filter -> List
-                orderNumber = personList.stream() //Lista de pessoa
-                        .filter(person -> {
-                            if (person instanceof Teacher teacher) { //Filtra professores
-                                return Objects.equals(teacher.getId(), idSearch);
-                            } else if (person instanceof Student student) { //Filtra alunos
-                                return Objects.equals(student.getId(), idSearch);
+                orderPerson = personList.stream() //Lista de pessoa
+                        .filter(person -> { //Registros encontrados
+                            if (person instanceof Teacher teacher && Objects.equals(person.getId(), idSearch)) { //Filtra professores
+                                System.out.println(teacher.completeTeacherString(19, 12));
+                                return true;
+                            } else if (person instanceof Student student && Objects.equals(person.getId(), idSearch)) { //Filtra alunos
+                                System.out.println(student.completeStudentString(19));
+                                return true;
                             }
-                            return false; // Caso a pessoa não seja nem professor nem aluno
+                            return false; // Caso não seja nem professor nem aluno
                         })
                         .toList();
 
-                if (role == 'P') { //Professor
-                    if (orderNumber.stream().noneMatch(person -> person instanceof Teacher)) { //Verificação de existência de registro
-                        System.out.println(error404);
-                    } else {
-                        System.out.println(teacherHeader);
-                        for (Person id : orderNumber) {
-                            if (id instanceof Teacher teacher) { // Verifica se é instância de Teacher e converte para o mesmo pra usar método
-                                System.out.println(teacher.completeTeacherString(19, 12));
-                            }
-                        }
-                    }
-                } else { //Aluno
-                    if (orderNumber.stream().noneMatch(person -> person instanceof Student)) { //Verificação de existência de registro
-                        System.out.println(error404);
-                    } else if (role == 'A'){
-                        System.out.println(studentHeader);
-                        for (Person id : orderNumber) {
-                            if (id instanceof Student student) { // Verifica se é instância de Student e converte para o mesmo pra usar método
-                                System.out.println(student.completeStudentString(19));
-                            }
-                        }
-                    }
-                }
+                if (orderPerson.isEmpty()) System.out.println(error404);
                 break;
             case 4: //Gênero
                 System.out.print("Digite o gênero que deseja procurar: ");
                 char genderSearch = sc.next().toUpperCase().charAt(0);
 
+                for (Person person: personList) { //Cabeçalho
+                    if (role == 'P' && Objects.equals(person.getGender(), genderSearch)) {
+                        System.out.println(teacherHeader);
+                        break;
+                    } else if (role == 'A' && Objects.equals(person.getGender(), genderSearch)) {
+                        System.out.println(studentHeader);
+                        break;
+                    }
+                }
+
                 //List -> Stream -> filter -> List
-                List<Person> orderGender = personList.stream()
-                        .filter(person -> {
-                            if (person instanceof Teacher teacher) { //Filtra Professores
-                                return teacher.getGender() == genderSearch;
-                            } else if (person instanceof Student student) { //Filtra alunos
-                                return student.getGender() == genderSearch;
+                orderPerson = personList.stream()
+                        .filter(person -> { //Registros encontrados
+                            if (person instanceof Teacher teacher && person.getGender() == genderSearch) { //Filtra Professores
+                                System.out.println(teacher.completeTeacherString(19, 12));
+                                return true;
+                            } else if (person instanceof Student student && person.getGender() == genderSearch) { //Filtra alunos
+                                System.out.println(student.completeStudentString(19));
+                                return true;
                             }
-                            return false; // Caso a pessoa não seja nem professor nem aluno
+                            return false; // Caso não seja nem professor nem aluno
                         })
                         .toList();
 
-                if (role == 'P') {
-                    if (orderGender.stream().noneMatch(person -> person instanceof Teacher)) { //Verificação de existência de registro
-                        System.out.println(error404);
-                    } else {
-                        System.out.println(teacherHeader);
-                        for (Person gender : orderGender) {
-                            if (gender instanceof Teacher teacher) { // Verifica se é instância de Teacher e converte para o mesmo pra usar método
-                                System.out.println(teacher.completeTeacherString(19, 12));
-                            }
-                        }
-                    }
-                } else {
-                    if (orderGender.stream().noneMatch(person -> person instanceof Student)) { //Verificação de existência de registro
-                        System.out.println(error404);
-                    } else if (role == 'A'){
-                        System.out.println(studentHeader);
-                        for (Person gender : orderGender) {
-                            if (gender instanceof Student student) { // Verifica se é instância de Student e converte para o mesmo pra usar método
-                                System.out.println(student.completeStudentString(19));
-                            }
-                        }
-                    }
-                }
+                if (orderPerson.isEmpty()) System.out.println(error404);
                 break;
             case 0:
                 break;
@@ -567,43 +521,47 @@ public class Menus {
                             System.out.print("Digite a disciplina que deseja procurar: ");
                             String courseSearch = sc.nextLine();
 
-                            //List -> Stream -> filter -> List
-                            orderName = personList.stream()
-                                    .filter(person -> person instanceof Teacher teacher //Filtra instância de teacher e converte para o mesmo
-                                            && Objects.equals(teacher.getCourse().toLowerCase(), courseSearch.toLowerCase())) //Pra usar método. LowerCase pra ficar igual
-                                    .toList();
-
-                            if (orderName.isEmpty()) {
-                                System.out.println(error404);
-                            } else {
-                                System.out.println(teacherHeader);
-                                for (Person course: orderName) {
-                                    if (course instanceof Teacher teacher) {
-                                        System.out.println(teacher.completeTeacherString(19, 12));
-                                    }
+                            for (Person person: personList) { //Cabeçalho
+                                if (person instanceof Teacher teacher && teacher.getCourse().equalsIgnoreCase(courseSearch)) {
+                                    System.out.println(teacherHeader);
+                                    break;
                                 }
                             }
+                            //List -> Stream -> filter -> List
+                            orderPerson = personList.stream()
+                                    .filter(person -> { //Registros encontrados
+                                        if (person instanceof Teacher teacher && teacher.getCourse().equalsIgnoreCase(courseSearch)) {
+                                            System.out.println(teacher.completeTeacherString(19, 12));
+                                            return true;
+                                        }
+                                        return false; //Se não existir
+                                    }) //Pra usar método
+                                    .toList();
+
+                            if (orderPerson.isEmpty()) System.out.println(error404);
                             break;
                         case 6: //Salário
                             System.out.print("Digite o salário que deseja procurar: ");
                             double salarySearch = sc.nextDouble();
 
-                            //List -> Stream -> filter -> List
-                            orderNumber = personList.stream()
-                                    .filter(person -> person instanceof Teacher teacher //Filtra instância de teacher e converte para o mesmo
-                                            && teacher.getSalary() == salarySearch) //Pra usar método
-                                    .toList();
-
-                            if (orderNumber.isEmpty()) {
-                                System.out.println(error404);
-                            } else {
-                                System.out.println(teacherHeader);
-                                for (Person salary: orderNumber) {
-                                    if (salary instanceof Teacher teacher) { // Verifica se é instância de Teacher e converte para o mesmo pra usar método
-                                        System.out.println(teacher.completeTeacherString(19, 12));
-                                    }
+                            for (Person person: personList) { //Cabeçlho
+                                if (person instanceof Teacher teacher && teacher.getSalary() == salarySearch) {
+                                    System.out.println(teacherHeader);
+                                    break;
                                 }
                             }
+                            //List -> Stream -> filter -> List
+                            orderPerson = personList.stream()
+                                    .filter(person -> { //Registros encontrados
+                                        if (person instanceof Teacher teacher && teacher.getSalary() == salarySearch) {
+                                            System.out.println(teacher.completeTeacherString(19, 12));
+                                            return true;
+                                        }
+                                        return false; //Se não existir
+                                    })
+                                    .toList();
+
+                            if (orderPerson.isEmpty()) System.out.println(error404);
                             break;
                         default:
                             System.out.println("\nOpção inválida, Tente novamente!");
@@ -615,21 +573,24 @@ public class Menus {
                             System.out.print("Digite o semestre que deseja procurar: ");
                             int semesterSearch = sc.nextInt();
 
-                            //List -> Stream -> filter -> List
-                            orderNumber = personList.stream()
-                                    .filter(person -> person instanceof Student student //Filtra instância de student e converte para o mesmo
-                                            && student.getSemester() == semesterSearch) //Pra usar método
-                                    .toList();
-
-                            if (orderNumber.isEmpty()) {
-                                System.out.println(error404);
-                            } else {
-                                System.out.println(studentHeader);
-                                for (Person semester : orderNumber) {
-                                    if (semester instanceof Student student) // Verifica se é instância de Student e converte para o mesmo pra usar método
-                                        System.out.println(student.completeStudentString(19));
+                            for (Person person: personList) { //Cabeçlho
+                                if (person instanceof Student student && student.getSemester() == semesterSearch) {
+                                    System.out.println(studentHeader);
+                                    break;
                                 }
                             }
+                            //List -> Stream -> filter -> List
+                            orderPerson = personList.stream()
+                                    .filter(person -> {
+                                        if (person instanceof Student student && student.getSemester() == semesterSearch) {
+                                            System.out.println(student.completeStudentString(19));
+                                            return true;
+                                        }
+                                        return false;
+                                    })
+                                    .toList();
+
+                            if (orderPerson.isEmpty()) System.out.println(error404);
                             break;
                         default:
                             System.out.println("\nOpção inválida, Tente novamente!");

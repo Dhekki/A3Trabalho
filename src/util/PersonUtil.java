@@ -8,7 +8,7 @@ import java.util.*;
 
 public class PersonUtil {
     //Função cadastro
-    public static Person personRecord(Scanner sc,ArrayList<Person> personListRecord) {
+    public static Person personRecord(Scanner sc, ArrayList<Person> personListRecord) {
         //Inserir variáveis de cadastro
         String name, id;
         int age;
@@ -25,7 +25,7 @@ public class PersonUtil {
         do { //Verificação de gênero válido
             System.out.print("Digite o gênero: ");
             gender = sc.next().toUpperCase().charAt(0);
-        } while (genderValidator(gender));
+        } while (!genderValidator(gender));
 
         System.out.print("Digite o id: ");
         do { //Verificação de id válido
@@ -64,7 +64,7 @@ public class PersonUtil {
         return teacher;
     }
 
-    //Método para o obrigar que o id tenha exatamente 10 dígitos.
+    //Método para o obrigar que o id tenha exatamente uma quantidade de dígitos.
     public static boolean idLimiter(String id, int size) {
         return (id.length() == size);
     }
@@ -76,8 +76,8 @@ public class PersonUtil {
     public static boolean genderValidator(char gender) {
         if ((gender != 'M') && (gender != 'F')) {
             System.out.println("Gênero inválido!");
-            return true;
-        } else return false;
+            return false;
+        } else return true;
     }
 
     public static void clearBuffer(Scanner sc) {
@@ -102,6 +102,11 @@ public class PersonUtil {
 
     public static String firstUpCase(String word) { //Primeira letra maiúscula
         return word.substring(0, 1).toUpperCase() + word.substring(1);
+    }
+
+    public static String firstName(String[] names, Person person) {
+        names = person.getName().split(" "); //Separando os nomes e sobrenomes com arrays
+        return names[0]; // Obtém o primeiro nome
     }
 
     /* Outra maneira de fazer ordenação de lista com Comparator, fiz assim inicialmente mas escreve muito e deu preguiça,
