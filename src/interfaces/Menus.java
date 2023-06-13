@@ -99,11 +99,11 @@ public class Menus {
                             "\n\nOpção: ");
                     listChoice = sc.nextInt();
                     switch (listChoice) {
-                        case 1:
+                        case 1: //Listar todos
                             //Ordena a lista geral em Professor e alunos e depois em ordem alfabética
                             personList.sort(typeComparator.thenComparing(nameComparator));
-                            System.out.println("S/P  | Name\t\t\t\t | Id\t\t\t| Age" +
-                                    "\n-------------------------------------");
+                            System.out.println("S/P  | Name\t\t\t\t | Id\t\t\t| Age" + //Só aparece uma vez então deixei assim, mas posso fazer como função depois
+                                    "\n---------------------------------------------");
                             for (Person person : personList) {
                                 if (person instanceof Teacher) {
                                     System.out.println("Prof | " + person.standardString(19));
@@ -112,7 +112,7 @@ public class Menus {
                                 }
                             }
                             break;
-                        case 2:
+                        case 2: //Listar alunos
                             System.out.println(studentHeader);
                             for (Person person: personList) {
                                 if (person instanceof Student) {
@@ -120,7 +120,7 @@ public class Menus {
                                 }
                             }
                             break;
-                        case 3:
+                        case 3: //Listar professores
                             System.out.println(teacherHeader);
                             for (Person person: personList) {
                                 if (person instanceof Teacher) {
@@ -128,7 +128,7 @@ public class Menus {
                                 }
                             }
                             break;
-                        case 0:
+                        case 0: //Voltar
                             break;
                         default:
                             System.out.println("Opção inválida!");
@@ -187,23 +187,31 @@ public class Menus {
                 PersonUtil.clearBuffer(sc);
                 System.out.println("Você deseja modificar o registro de um aluno ou um professor?");
                 role = sc.nextLine().toUpperCase().charAt(0);
+                if (role != 'P' && role != 'A') {
+                    System.out.println("Opção inválida!");
+                    break;
+                }
                 System.out.println("Digite o id do registro que deseja modificar: ");
                 String userModify = sc.nextLine();
 
-                if (role == 'P') {
-                    System.out.println("\n" + teacherHeader);
-                } else if (role == 'A') {
-                    System.out.println("\n" + studentHeader);
-                }
-                for (Person person: personList) { //Verifica se o registro existe, retorna um boolean
-                    if (person instanceof Teacher teacher && Objects.equals(person.getId(), userModify)) {
-                        System.out.println(teacher.completeTeacherString(19, 12));
-                    } else if (person instanceof Student student && Objects.equals(person.getId(), userModify)) {
-                        System.out.println(student.completeStudentString(19));
+                for (Person person: personList) { //Verifica se o registro existe, escreve ele e retorna um boolean
+                    if (role == 'P') {
+                        if (person instanceof Teacher teacher && Objects.equals(person.getId(), userModify)) {
+                            System.out.println("\n" + teacherHeader);
+                            System.out.println(teacher.completeTeacherString(19, 12));
+                            registerFound = true;
+                            break;
+                        }
+                    } else if (role == 'A') {
+                        if (person instanceof Student student && Objects.equals(person.getId(), userModify)) {
+                            System.out.println("\n" + studentHeader);
+                            System.out.println(student.completeStudentString(19));
+                            registerFound = true;
+                            break;
+                        }
                     }
-                    registerFound = Objects.equals(person.getId(), userModify);
                 }
-                if (registerFound) {
+                if (!registerFound) {
                     System.out.println(error404);
                     break;
                 }
@@ -215,11 +223,11 @@ public class Menus {
                 }
 
                 switch (choice) {
-                    case 1:
+                    case 1: //Nome
                         List<Person> personModify = personList.stream()
                                 .filter(person -> Objects.equals(person.getId(), userModify))
                                 .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
-                                    // não precisei retornar
+                                    // única diferença visível é que não precisei retornar
                                     if (person instanceof Teacher teacher) {
                                         System.out.print("\nDigite o novo nome: ");
                                         PersonUtil.clearBuffer(sc);
@@ -238,25 +246,110 @@ public class Menus {
                                 })
                                 .toList();
                         break;
-                    case 2:
+                    case 2: //Idade
+                        personModify = personList.stream()
+                                .filter(person -> Objects.equals(person.getId(), userModify))
+                                .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
+                                    // única diferença visível é que não precisei retornar
+                                    if (person instanceof Teacher teacher) {
+                                        System.out.print("\nDigite a nova idade: ");
+                                        PersonUtil.clearBuffer(sc);
+                                        int newAge = sc.nextInt();
 
-                        break;
-                    case 3:
+                                        teacher.setAge(newAge);
+                                        System.out.println("Idade modificada com sucesso!");
+                                    } else if (person instanceof Student student) {
+                                        System.out.print("\nDigite a nova idade: ");
+                                        PersonUtil.clearBuffer(sc);
+                                        int newAge = sc.nextInt();
 
+                                        student.setAge(newAge);
+                                        System.out.println("Idade modificada com sucesso!");
+                                    }
+                                })
+                                .toList();
                         break;
-                    case 4:
-
+                    case 3: //Gênero
+                        personModify = personList.stream()
+                                .filter(person -> Objects.equals(person.getId(), userModify))
+                                .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
+                                    // única diferença visível é que não precisei retornar
+                                    if (person instanceof Teacher teacher) {
+                                        if (teacher.getGender() == 'F') teacher.setGender('M');
+                                        else if (teacher.getGender() == 'M') teacher.setGender('F');
+                                        System.out.println("Gênero alterado com sucesso!");
+                                    } else if (person instanceof Student student) {
+                                        if (student.getGender() == 'F') student.setGender('M');
+                                        else if (student.getGender() == 'M') student.setGender('F');
+                                        System.out.println("Gênero alterado com sucesso!");
+                                    }
+                                })
+                                .toList();
                         break;
-                    case 0:
+                    case 0: //Voltar
                         break;
                     default:
                         if (role == 'P') {
+                            switch (choice) {
+                                case 4: //Disciplina
+                                    personModify = personList.stream()
+                                            .filter(person -> Objects.equals(person.getId(), userModify))
+                                            .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
+                                                // única diferença visível é que não precisei retornar
+                                                if (person instanceof Teacher teacher) {
+                                                    System.out.print("\nDigite a nova disciplina: ");
+                                                    PersonUtil.clearBuffer(sc);
+                                                    String newCourse = sc.nextLine();
+
+                                                    teacher.setCourse(newCourse);
+                                                    System.out.println("Disciplina modificada com sucesso!");
+                                                }
+                                            })
+                                            .toList();
+                                    break;
+                                case 5: //Salário
+                                    personModify = personList.stream()
+                                            .filter(person -> Objects.equals(person.getId(), userModify))
+                                            .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
+                                                // única diferença visível é que não precisei retornar
+                                                if (person instanceof Teacher teacher) {
+                                                    System.out.print("\nDigite o novo salário: ");
+                                                    PersonUtil.clearBuffer(sc);
+                                                    double newSalary = sc.nextDouble();
+
+                                                    teacher.setSalary(newSalary);
+                                                    System.out.println("Salário modificado com sucesso!");
+                                                }
+                                            })
+                                            .toList();
+                                    break;
+                                default:
+                                    System.out.println("Opção inválida");
+                            }
 
                         } else if (role == 'A') {
+                            switch (choice) {
+                                case 4:
+                                    personModify = personList.stream()
+                                            .filter(person -> Objects.equals(person.getId(), userModify))
+                                            .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
+                                                // única diferença visível é que não precisei retornar
+                                                if (person instanceof Student student) {
+                                                    System.out.print("\nDigite o novo : ");
+                                                    PersonUtil.clearBuffer(sc);
+                                                    int newSemester = sc.nextInt();
 
+                                                    student.setSemester(newSemester);
+                                                    System.out.println("Semestre alterado com sucesso!");
+                                                }
+                                            })
+                                            .toList();
+                                    break;
+                                default:
+                                    System.out.println("Opção inválida");
+                            }
                         }
                 }
-
                 break;
             case 5: //Remover
                 PersonUtil.clearBuffer(sc);
@@ -265,33 +358,29 @@ public class Menus {
                 String userRemove = sc.nextLine();
                 registerFound = false;
 
-                if (!registerFound) {
-                    System.out.println(error404);
-                }
-
-                Iterator<Person> itr = personList.iterator();
+                Iterator<Person> itr = personList.iterator(); //Precisa disso pra remover, é o mais recomendado, pq? Nem ideia
                 while (itr.hasNext()) {
                     Person person = itr.next();
-                        if (person instanceof Teacher teacher && Objects.equals(teacher.getId(), userRemove)) { //Verifica se existe e é professor
-                            System.out.println("\n" + teacherHeader);
-                            System.out.println(teacher.completeTeacherString(19, 12) + "\n");
-                            System.out.print("Deseja realmente remover esse registro de professor? ");
-                        } else if (person instanceof Student student && Objects.equals(student.getId(), userRemove)) { //Verifica se existe e é estudante
-                            System.out.println("\n" + studentHeader);
-                            System.out.println(student.completeStudentString(19) + "\n");
-                            System.out.print("Deseja realmente remover esse registro de aluno? ");
-                        }
-                        if (Objects.equals(person.getId(), userRemove)) {
-                            role = sc.nextLine().toUpperCase().charAt(0); //Confirmação de remoção
+                    if (person instanceof Teacher teacher && Objects.equals(teacher.getId(), userRemove)) { //Verifica se existe e é professor
+                        System.out.println("\n" + teacherHeader);
+                        System.out.println(teacher.completeTeacherString(19, 12) + "\n");
+                        System.out.print("Deseja realmente remover esse registro de professor? ");
+                    } else if (person instanceof Student student && Objects.equals(student.getId(), userRemove)) { //Verifica se existe e é estudante
+                        System.out.println("\n" + studentHeader);
+                        System.out.println(student.completeStudentString(19) + "\n");
+                        System.out.print("Deseja realmente remover esse registro de aluno? ");
+                    }
+                    if (Objects.equals(person.getId(), userRemove)) {
+                        role = sc.nextLine().toUpperCase().charAt(0); //Confirmação de remoção
 
-                            if (role == 'S') {
-                                itr.remove();
-                                System.out.println("Registro removido com sucesso!");
-                            } else if (role == 'N') {
-                                System.out.println("Registro não removido!");
-                            } else System.out.println("Opção inválida");
-                            registerFound = true;
-                        }
+                        if (role == 'S') {
+                            itr.remove();
+                            System.out.println("Registro removido com sucesso!");
+                        } else if (role == 'N') {
+                            System.out.println("Registro não removido!");
+                        } else System.out.println("Opção inválida");
+                        registerFound = true;
+                    }
                 }
                 if (!registerFound) System.out.println(error404);
                 break;
