@@ -6,10 +6,12 @@ import entities.Teacher;
 import util.PersonUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Menus {
 
     char role; //Escolha de aluno ou professor
+    boolean registerFound, modify; //Verificador de registro e verificador de modificação
     //Strings autoexplicativas
     String studentHeader = PersonUtil.studentColumnHeader()
             ,teacherHeader = PersonUtil.teacherColumnHeader()
@@ -30,27 +32,48 @@ public class Menus {
         return choice;
     }
     //Menu pra escolha de atributo
-    public int atributteStudentMenu(Scanner sc, char role) {
-        System.out.print("\n\tQual atributo você deseja buscar?" +
-                "\n(1) Nome" +
-                "\n(2) Idade" +
-                "\n(3) Id" +
-                "\n(4) Gênero" +
-                "\n(5) Semestre" +
-                "\n(0) Não quero buscar nada" +
-                "\n\nOpção: ");
+    public int atributteStudentMenu(Scanner sc, boolean modify) {
+        if (!modify) { //não modificar = buscar
+            System.out.print("\n\tQual atributo deseja buscar?" +
+                    "\n(1) Nome" +
+                    "\n(2) Idade" +
+                    "\n(3) Id" +
+                    "\n(4) Gênero" +
+                    "\n(5) Semestre" +
+                    "\n(0) Não quero buscar nada" +
+                    "\n\nOpção: ");
+        } else {
+            System.out.print("\n\tQual atributo deseja modificar?" +
+                    "\n(1) Nome" +
+                    "\n(2) Idade" +
+                    "\n(3) Gênero" +
+                    "\n(4) Semestre" +
+                    "\n(0) Não quero modificar nada" +
+                    "\n\nOpção: ");
+        }
         return sc.nextInt();
     }
-    public int atributteTeacherMenu(Scanner sc, char role) {
-        System.out.print("\n\tQual atributo você deseja buscar?" +
-                "\n(1) Nome" +
-                "\n(2) Idade" +
-                "\n(3) Id" +
-                "\n(4) Gênero" +
-                "\n(5) Disciplina" +
-                "\n(6) Salário" +
-                "\n(0) Não quero buscar nada" +
-                "\n\nOpção: ");
+    public int atributteTeacherMenu(Scanner sc, boolean modify) {
+        if (!modify) { //não modificar = buscar
+            System.out.print("\n\tQual atributo deseja buscar?" +
+                    "\n(1) Nome" +
+                    "\n(2) Idade" +
+                    "\n(3) Id" +
+                    "\n(4) Gênero" +
+                    "\n(5) Disciplina" +
+                    "\n(6) Salário" +
+                    "\n(0) Não quero buscar nada" +
+                    "\n\nOpção: ");
+        } else {
+            System.out.print("\n\tQual atributo deseja modificar?" +
+                    "\n(1) Nome" +
+                    "\n(2) Idade" +
+                    "\n(3) Gênero" +
+                    "\n(4) Disciplina" +
+                    "\n(5) Salário" +
+                    "\n(0) Não quero modificar nada" +
+                    "\n\nOpção: ");
+        }
         return sc.nextInt();
     }
 
@@ -119,7 +142,7 @@ public class Menus {
                 role = sc.nextLine().toUpperCase().charAt(0);
                 if (role == 'P') {
                     System.out.println("\nCadastro do Professor");
-                } else if (role == 'A' || role == 'E') {
+                } else if (role == 'A') {
                     System.out.println("\nCadastro do Aluno");
                 } else {
                     System.out.println("Opção inválida!");
@@ -130,7 +153,7 @@ public class Menus {
                     if (role == 'P') {
                         personList.add((PersonUtil.teacherRecord(sc, personList))); //Adição de Professor na lista pelo método record
                         System.out.print("\nDeseja cadastrar outro Profesor? ");
-                    } else {
+                    } else if (role == 'A'){
                         personList.add(PersonUtil.studentRecord(sc, personList)); //Adição de Aluno na lista pelo método record
                         System.out.print("\nDeseja cadastrar outro aluno? ");
                     }
@@ -141,12 +164,13 @@ public class Menus {
                 } while (repeat);
                 break;
             case 3: //Buscar
+                modify = false;
                 System.out.println("Deseja buscar alunos ou professores?");
                 PersonUtil.clearBuffer(sc);
                 role = sc.nextLine().toUpperCase().charAt(0);
                 if (role == 'P') {
                     System.out.println("\nBusca de Professores");
-                } else if (role == 'A' || role == 'E') {
+                } else if (role == 'A') {
                     System.out.println("\nBusca de Alunos");
                 } else {
                     System.out.println("Opção inválida!");
@@ -154,19 +178,96 @@ public class Menus {
                 }
 
                 if (role == 'P') {
-                    atributteChoice(atributteTeacherMenu(sc, role), personList, sc, role);
-                } else atributteChoice(atributteStudentMenu(sc, role), personList, sc, role);
+                    atributteChoice(atributteTeacherMenu(sc, modify), personList, sc, role);
+                } else atributteChoice(atributteStudentMenu(sc, modify), personList, sc, role);
 
                 break;
-            case 4:
-                System.out.println("Função indisponível no momento");
+            case 4: //Modificar
+                modify = true;
+                PersonUtil.clearBuffer(sc);
+                System.out.println("Você deseja modificar o registro de um aluno ou um professor?");
+                role = sc.nextLine().toUpperCase().charAt(0);
+                System.out.println("Digite o id do registro que deseja modificar: ");
+                String userModify = sc.nextLine();
+
+                if (role == 'P') {
+                    System.out.println("\n" + teacherHeader);
+                } else if (role == 'A') {
+                    System.out.println("\n" + studentHeader);
+                }
+                for (Person person: personList) { //Verifica se o registro existe, retorna um boolean
+                    if (person instanceof Teacher teacher && Objects.equals(person.getId(), userModify)) {
+                        System.out.println(teacher.completeTeacherString(19, 12));
+                    } else if (person instanceof Student student && Objects.equals(person.getId(), userModify)) {
+                        System.out.println(student.completeStudentString(19));
+                    }
+                    registerFound = Objects.equals(person.getId(), userModify);
+                }
+                if (registerFound) {
+                    System.out.println(error404);
+                    break;
+                }
+
+                if (role == 'P') {
+                    choice = atributteTeacherMenu(sc, modify);
+                } else if (role == 'A') {
+                    choice = atributteStudentMenu(sc, modify);
+                }
+
+                switch (choice) {
+                    case 1:
+                        List<Person> personModify = personList.stream()
+                                .filter(person -> Objects.equals(person.getId(), userModify))
+                                .peek(person -> { //map e peek aparentemente servem pra modificar, usei map mas intellij recomendou colocar peek,
+                                    // não precisei retornar
+                                    if (person instanceof Teacher teacher) {
+                                        System.out.print("\nDigite o novo nome: ");
+                                        PersonUtil.clearBuffer(sc);
+                                        String newName = sc.nextLine();
+
+                                        teacher.setName(newName);
+                                        System.out.println("Nome modificado com sucesso!");
+                                    } else if (person instanceof Student student) {
+                                        System.out.print("\nDigite o novo nome: ");
+                                        PersonUtil.clearBuffer(sc);
+                                        String newName = sc.nextLine();
+
+                                        student.setName(newName);
+                                        System.out.println("Nome modificado com sucesso!");
+                                    }
+                                })
+                                .toList();
+                        break;
+                    case 2:
+
+                        break;
+                    case 3:
+
+                        break;
+                    case 4:
+
+                        break;
+                    case 0:
+                        break;
+                    default:
+                        if (role == 'P') {
+
+                        } else if (role == 'A') {
+
+                        }
+                }
+
                 break;
-            case 5:
+            case 5: //Remover
                 PersonUtil.clearBuffer(sc);
                 System.out.println("\nRemover usuário");
-                System.out.print("Digite o id do usuário que deseja remover: ");
+                System.out.print("Digite o id do registro que deseja remover: ");
                 String userRemove = sc.nextLine();
-                boolean registerFound = false;
+                registerFound = false;
+
+                if (!registerFound) {
+                    System.out.println(error404);
+                }
 
                 Iterator<Person> itr = personList.iterator();
                 while (itr.hasNext()) {
@@ -236,7 +337,7 @@ public class Menus {
                             }
                         }
                     }
-                } else {
+                } else if (role == 'A'){
                     if (orderName.stream().noneMatch(person -> person instanceof Student)) { //Verificação de existência de registro
                         System.out.println(error404);
                     } else {
@@ -276,7 +377,7 @@ public class Menus {
                                 System.out.println(teacher.completeTeacherString(19, 12));
                         }
                     }
-                } else {
+                } else if (role == 'A'){
                     if (orderNumber.stream().noneMatch(person -> person instanceof Student)) { //Verificação de existência de registro
                         System.out.println(error404);
                     } else {
@@ -318,7 +419,7 @@ public class Menus {
                 } else { //Aluno
                     if (orderNumber.stream().noneMatch(person -> person instanceof Student)) { //Verificação de existência de registro
                         System.out.println(error404);
-                    } else {
+                    } else if (role == 'A'){
                         System.out.println(studentHeader);
                         for (Person id : orderNumber) {
                             if (id instanceof Student student) { // Verifica se é instância de Student e converte para o mesmo pra usar método
@@ -358,7 +459,7 @@ public class Menus {
                 } else {
                     if (orderGender.stream().noneMatch(person -> person instanceof Student)) { //Verificação de existência de registro
                         System.out.println(error404);
-                    } else {
+                    } else if (role == 'A'){
                         System.out.println(studentHeader);
                         for (Person gender : orderGender) {
                             if (gender instanceof Student student) { // Verifica se é instância de Student e converte para o mesmo pra usar método
@@ -419,7 +520,7 @@ public class Menus {
                             System.out.println("\nOpção inválida, Tente novamente!");
                             break;
                     }
-                } else {
+                } else if (role == 'A'){
                     switch (choiceAtributte) { //Alunos
                         case 5: //Semestre
                             System.out.print("Digite o semestre que deseja procurar: ");

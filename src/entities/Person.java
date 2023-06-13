@@ -50,5 +50,5 @@ public class Person {
             String truncatedName = truncateName(nameLength);
             return String.format("%-" + nameLength + "s \b\b| %s \t| %d", truncatedName, id, age);
         }
-
+        
 }
